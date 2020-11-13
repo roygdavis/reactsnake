@@ -40,8 +40,8 @@ const mouseMoveHandler = (x: number, y: number, state: AppState, setState: SetSt
         const rect = canvasRef.current.getBoundingClientRect();
         const scaleX = canvasRef.current.width / rect.width;
         const scaleY = canvasRef.current.height / rect.height;
-        const xpos = (x - rect.left) * scaleX;
-        const ypos = (y - rect.top) * scaleY;
+        const xpos = Math.round((x - rect.left) * scaleX);
+        const ypos = Math.round((y - rect.top) * scaleY);
         const pos = { x: xpos, y: ypos } as BodyCoOrds;
         if (state.snakeBody.length === state.snakeLength) {
             const body = state.snakeBody.slice(1);

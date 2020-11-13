@@ -1,7 +1,6 @@
 import React from 'react';
 import { Canvas } from "./Components/Canvas";
 import './App.css';
-import { randomInt } from 'crypto';
 
 export interface AppProps {
 
@@ -18,6 +17,12 @@ export interface AppState {
   rain: BodyCoOrds[];
   newRainInterval: number;
   timeSinceLastRain: number;
+  rainSpeed: number;
+  totalTicks: number;
+  ticksDifference: number;
+  refreshRate: number;
+  collisionDetected: boolean;
+  animationFrameId: number | null;
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -27,28 +32,47 @@ class App extends React.Component<AppProps, AppState> {
       snakeBody: [],
       snakeLength: 100,
       rain: [],
-      newRainInterval: 500,
-      timeSinceLastRain: 0
+      newRainInterval: 50,
+      timeSinceLastRain: 0,
+      rainSpeed: 1000 / 60,
+      totalTicks: 0,
+      ticksDifference: 0,
+      refreshRate: 1000 / 60,
+      collisionDetected: false,
+      animationFrameId: null
     };
   }
 
   update = () => {
-    let { timeSinceLastRain } = this.state;
-    const { rain } = this.state;
+    let { timeSinceLastRain, totalTicks, ticksDifference, refreshRate, collisionDetected } = this.state;
+    const { rain, newRainInterval, snakeBody } = this.state;
 
+    ticksDifference = (totalTicks + refreshRate) - totalTicks;
+    totalTicks += refreshRate;
     timeSinceLastRain--;
 
     if (rain.length > 0) rain.forEach(x => x.y++);
 
-    const newRain = rain.filter(x => x.y < 1000);
+    const newRain = rain.filter(x => x.y < 200);
 
     if (timeSinceLastRain < 0) {
-      const rx = Math.round(Math.random() * 100);
-      rain.push({ x: rx, y: 0 });
-      timeSinceLastRain = 500;
+      const rx = Math.round(Math.random() * 300);
+      newRain.push({ x: rx, y: 0 });
+      timeSinceLastRain = newRainInterval;
     }
 
-    this.setState({ rain: newRain, timeSinceLastRain });
+    rain.forEach(r => {
+      if (snakeBody.some(s => s.x === r.x && s.y === r.y)) {
+        collisionDetected = true;
+        console.log("Collision");
+      }
+    });
+
+    let frameId = null;
+    if (!collisionDetected) {
+      frameId = window.requestAnimationFrame(this.update);
+    }
+    this.setState({ rain: newRain, timeSinceLastRain, animationFrameId: frameId });
   }
 
   draw = () => {
@@ -60,10 +84,8 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   componentDidMount() {
-    setInterval(() => {
-      this.update();
-      //this.draw();
-    }, 1000 / 60)
+    const frameId = window.requestAnimationFrame(this.update);
+    this.setState({ animationFrameId: frameId });
   }
   render() {
     return (<div className="App">
