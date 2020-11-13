@@ -4,31 +4,18 @@ import { AppState, BodyCoOrds, SetStateHandler } from '../App';
 export interface CanvasProps {
     state: AppState;
     setState: SetStateHandler;
+    render: (state: AppState, context: CanvasRenderingContext2D) => void;
 }
-export const Canvas = ({ state, setState }: CanvasProps) => {
+export const Canvas = ({ state, setState, render }: CanvasProps) => {
     const canvasRef = React.useRef<HTMLCanvasElement>(null);
     React.useEffect(() => {
-        const context = canvasRef.current && canvasRef.current.getContext("2d");
-        if (context) {
+        const context = canvasRef && canvasRef.current && canvasRef.current.getContext("2d");
+        if (canvasRef.current && context) {
             // do our draw here, incoming from props
+            updateCanvasSize(canvasRef.current, context, state, setState);
             context.fillStyle = "white";
             context.fillRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
-            //context.beginPath();
-            state.snakeBody.forEach(x => {
-                context.beginPath();
-                context.arc(x.x, x.y, 1, 0, 2 * Math.PI);
-                context.fillStyle = "green";
-                context.fill();
-                context.closePath();
-            });
-            state.rain.forEach(x => {
-                context.beginPath();
-                context.arc(x.x, x.y, 1, 0, 2 * Math.PI);
-                context.fillStyle = "red";
-                context.fill();
-                context.closePath();
-            })
-            //context.closePath();
+            render(state, context);
         }
     });
 
@@ -36,19 +23,20 @@ export const Canvas = ({ state, setState }: CanvasProps) => {
 }
 
 const mouseMoveHandler = (x: number, y: number, state: AppState, setState: SetStateHandler, canvasRef: React.RefObject<HTMLCanvasElement>) => {
-    if (canvasRef.current) {
-        const rect = canvasRef.current.getBoundingClientRect();
-        const scaleX = canvasRef.current.width / rect.width;
-        const scaleY = canvasRef.current.height / rect.height;
-        const xpos = Math.round((x - rect.left) * scaleX);
-        const ypos = Math.round((y - rect.top) * scaleY);
-        const pos = { x: xpos, y: ypos } as BodyCoOrds;
-        if (state.snakeBody.length === state.snakeLength) {
-            const body = state.snakeBody.slice(1);
-            body.push(pos);
-            state.snakeBody = body;
-        } else
-            state.snakeBody.push(pos);
-        setState(state);
-    }
+    state.currentMousePosition = { x: x, y: y } as BodyCoOrds;
+    setState(state);
 }
+
+const updateCanvasSize = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, state: AppState, setState: SetStateHandler) => {
+    const { width, height } = canvas.getBoundingClientRect();
+
+    if (canvas.width !== width || canvas.height !== height) {
+        const { devicePixelRatio: ratio = 1 } = window;
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
+        context.scale(ratio, ratio);
+    }
+    // state.frameWidth = canvas.width;
+    // state.frameHeight = canvas.height;
+    //setState(state);
+};
