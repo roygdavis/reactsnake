@@ -25,13 +25,7 @@ export interface AppState {
   newRainInterval: number;
   timeSinceLastRain: number;
   rainSpeed: number;
-  //totalTicks: number;
-  //ticksDifference: number;
-  //refreshRate: number;
   collisionDetected: boolean;
-  //animationFrameId: number | null;
-  //frameWidth: number;
-  //frameHeight: number;
   apples: BodyCoOrds[];
   timeSinceLastApple: number;
   newAppleInterval: number;
@@ -40,34 +34,36 @@ export interface AppState {
   highScore: number;
   entities: Entity[];
   context: CanvasRenderingContext2D | null;
+  gameTicks: number;
+  difficultyLevel: number;
+}
+
+const initState = () => {
+  return {
+    snakeBody: [],
+    snakeLength: 100,
+    rain: [],
+    newRainInterval: 50,
+    timeSinceLastRain: 0,
+    rainSpeed: 2,
+    collisionDetected: false,
+    apples: [],
+    timeSinceLastApple: 0,
+    newAppleInterval: 500,
+    currentMousePosition: null,
+    score: 0,
+    highScore: 0,
+    entities: [],
+    context: null,
+    gameTicks: 0,
+    difficultyLevel: 5
+  } as AppState;
 }
 
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
-    this.state = {
-      snakeBody: [],
-      snakeLength: 100,
-      rain: [],
-      newRainInterval: 50,
-      timeSinceLastRain: 0,
-      rainSpeed: 10,
-      //totalTicks: 0,
-      //ticksDifference: 0,
-      //refreshRate: 1000 / 60,
-      collisionDetected: false,
-      //animationFrameId: null,
-      //frameWidth: 0,
-      //frameHeight: 0,
-      apples: [],
-      timeSinceLastApple: 0,
-      newAppleInterval: 500,
-      currentMousePosition: null,
-      score: 0,
-      highScore: 0,
-      entities: [],
-      context: null
-    };
+    this.state = initState();
   }
 
   update = () => {
@@ -89,21 +85,10 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   resetState = () => {
-    this.setState({
-      snakeBody: [],
-      snakeLength: 100,
-      rain: [],
-      newRainInterval: 50,
-      timeSinceLastRain: 0,
-      rainSpeed: 10,
-      collisionDetected: false,
-      apples: [],
-      timeSinceLastApple: 0,
-      newAppleInterval: 500,
-      currentMousePosition: null,
-      score: 0,
-      //entities: []
-    }, () => window.requestAnimationFrame(this.update));
+    const state = initState();
+    state.highScore = this.state.highScore;
+    state.entities = getEntities();
+    this.setState(state, () => window.requestAnimationFrame(this.update));
   }
 
   componentDidMount() {

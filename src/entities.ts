@@ -17,11 +17,14 @@ export const getEntities = (): Entity[] => {
             },
             renderMethod: (state: AppState, context: CanvasRenderingContext2D) => {
                 if (context) {
-                    state.snakeBody.forEach(x => {
+                    state.snakeBody.forEach((x, i) => {
                         context.beginPath();
-                        context.arc(x.x, x.y, 10, 0, 2 * Math.PI);
-                        context.fillStyle = "green";
-                        context.fill();
+                        if (i > 0) {
+                            //context.arc(state.snakeBody[i].x, state.snakeBody[i].y, 10, 0, 2 * Math.PI);
+                            context.arc(x.x, x.y, 10, 0, 2 * Math.PI);
+                            context.fillStyle = "green";
+                            context.fill();
+                        }
                         context.closePath();
                     });
                 }
@@ -33,6 +36,7 @@ export const getEntities = (): Entity[] => {
                 state.timeSinceLastRain--;
                 if (state.rain.length > 0) state.rain.forEach(x => x.y = x.y + state.rainSpeed);
                 const newRain = state.rain.filter(x => x.y < window.innerHeight);
+                state.score = state.score + (state.rain.filter(x => x.y > window.innerHeight).length * 100);
                 if (state.timeSinceLastRain < 0) {
                     const rx = Math.round(Math.random() * window.innerWidth);
                     newRain.push({ x: rx, y: 0 });
@@ -41,7 +45,6 @@ export const getEntities = (): Entity[] => {
                 newRain.forEach(r => {
                     if (state.snakeBody.some(s => (r.x - 10 < s.x && r.x + 10 > s.x) && (r.y - 10 < s.y && r.y + 10 > s.y))) {
                         state.collisionDetected = true;
-                        console.log("Collision");
                     }
                 });
                 state.rain = newRain;
@@ -74,7 +77,6 @@ export const getEntities = (): Entity[] => {
                     if (eatenApples.length > 0) {
                         state.score += 1000;
                         state.snakeLength = state.snakeLength + 10;
-                        console.log(state.apples.length);
                         const newApples = state.apples.filter(x => !eatenApples.some(y => x.x === y.x && x.y === y.y));
                         state.apples = newApples;
                     }
@@ -117,9 +119,22 @@ export const getEntities = (): Entity[] => {
                     context.font = "30px Comic Sans MS";
                     context.fillStyle = "red";
                     context.textAlign = "center";
-                    context.fillText(`CLICK HERE TO PLAY AGAIN`, 850, 500);
+                    context.fillText(`CLICK TO PLAY AGAIN`, 850, 500);
                 }
             }
+        },
+        {
+            name: "GAME TICKS",
+            updateMethod: (state: AppState): AppState => {
+                state.gameTicks++;
+                if (state.gameTicks % 250 === 1) {
+                    state.newRainInterval = state.newRainInterval - state.difficultyLevel;
+                    state.newAppleInterval = state.newAppleInterval - state.difficultyLevel;
+                    state.rainSpeed++;
+                }
+                return state;
+            },
+            renderMethod: (state: AppState, context: CanvasRenderingContext2D) => { }
         }
     ]
 }
