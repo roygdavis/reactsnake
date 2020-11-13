@@ -18,6 +18,8 @@ export const Canvas = ({ state, setState, render }: CanvasProps) => {
             render(state, context);
         }
     });
+    // state.context = canvasRef && canvasRef.current && canvasRef.current.getContext("2d");
+    // setState(state);
 
     return (<canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} onMouseMove={(e) => mouseMoveHandler(e.clientX, e.clientY, state, setState, canvasRef)}></canvas>)
 }
