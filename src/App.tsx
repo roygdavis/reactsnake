@@ -18,13 +18,13 @@ export interface AppState {
   newRainInterval: number;
   timeSinceLastRain: number;
   rainSpeed: number;
-  totalTicks: number;
-  ticksDifference: number;
-  refreshRate: number;
+  //totalTicks: number;
+  //ticksDifference: number;
+  //refreshRate: number;
   collisionDetected: boolean;
   animationFrameId: number | null;
-  frameWidth: number;
-  frameHeight: number;
+  //frameWidth: number;
+  //frameHeight: number;
   apples: BodyCoOrds[];
   timeSinceLastApple: number;
   newAppleInterval: number;
@@ -41,13 +41,13 @@ class App extends React.Component<AppProps, AppState> {
       newRainInterval: 50,
       timeSinceLastRain: 0,
       rainSpeed: 10,
-      totalTicks: 0,
-      ticksDifference: 0,
-      refreshRate: 1000 / 60,
+      //totalTicks: 0,
+      //ticksDifference: 0,
+      //refreshRate: 1000 / 60,
       collisionDetected: false,
       animationFrameId: null,
-      frameWidth: 0,
-      frameHeight: 0,
+      //frameWidth: 0,
+      //frameHeight: 0,
       apples: [],
       timeSinceLastApple: 0,
       newAppleInterval: 500,
@@ -56,8 +56,8 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   update = () => {
-    let { timeSinceLastRain, totalTicks, ticksDifference, refreshRate, apples, collisionDetected, timeSinceLastApple, snakeLength, snakeBody } = this.state;
-    const { rain, newRainInterval, frameWidth, frameHeight, rainSpeed, newAppleInterval, currentMousePosition } = this.state;
+    let { timeSinceLastRain, apples, collisionDetected, timeSinceLastApple, snakeLength, snakeBody } = this.state;
+    const { rain, newRainInterval, rainSpeed, newAppleInterval, currentMousePosition } = this.state;
 
     //ticksDifference = (totalTicks + refreshRate) - totalTicks;
     //totalTicks += refreshRate;
