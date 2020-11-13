@@ -94,7 +94,12 @@ export const getEntities = (): Entity[] => {
         {
             name: "SCORE",
             updateMethod: (state: AppState, setState: SetStateHandler): AppState => {
-                state.score++;
+                if (!state.collisionDetected) {
+                    state.score++;                    
+                }
+                else {
+                    if (state.score > state.highScore) state.highScore = state.score;
+                }
                 return state
             },
             renderMethod: (state: AppState, context: CanvasRenderingContext2D) => {

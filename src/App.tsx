@@ -88,13 +88,33 @@ class App extends React.Component<AppProps, AppState> {
     this.setState(state);
   }
 
+  resetState = () => {
+    this.setState({
+      snakeBody: [],
+      snakeLength: 100,
+      rain: [],
+      newRainInterval: 50,
+      timeSinceLastRain: 0,
+      rainSpeed: 10,
+      collisionDetected: false,
+      apples: [],
+      timeSinceLastApple: 0,
+      newAppleInterval: 500,
+      currentMousePosition: null,
+      score: 0,
+      //entities: []
+    }, () => window.requestAnimationFrame(this.update));
+  }
+
   componentDidMount() {
     window.requestAnimationFrame(this.update);
     this.setState({ entities: getEntities() });
   }
 
   render() {
-    return (<div className="App">
+    return (<div className="App" onClick={() => {
+      if (this.state.collisionDetected) this.resetState();
+    }}>
       <Canvas state={this.state} setState={this.setStateWrapper} render={canvasRender}></Canvas>
     </div>);
   }
