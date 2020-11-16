@@ -7,9 +7,23 @@ export const getEntities = (): Entity[] => {
             updateMethod: (state: AppState, setState: SetStateHandler) => {
                 if (state.currentMousePosition) {
                     if (state.snakeBody.length === state.snakeLength) {
-                        const body = state.snakeBody.slice(1);
-                        body.push(state.currentMousePosition);
-                        state.snakeBody = body;
+                        const lastPos = state.snakeBody[9];
+                        const xdiff = state.currentMousePosition.x - lastPos.x;
+                        const ydiff = state.currentMousePosition.y - lastPos.y;
+                        const hyp = Math.sqrt(xdiff * xdiff + (ydiff * ydiff));
+                        if (hyp > 10) {
+                            console.log(hyp);
+                            const freq = Math.round(hyp / 10);
+                            const body = state.snakeBody.slice(10 - freq);
+                            for (let index = 1; index < freq; index++) {
+                                body.push({ x: state.currentMousePosition.x - (index * freq), y: state.currentMousePosition.y - (index * freq) });
+                            }
+                            body.push(state.currentMousePosition);
+                        } else {
+                            const body = state.snakeBody.slice(1);
+                            body.push(state.currentMousePosition);
+                            state.snakeBody = body;    
+                        }                        
                     } else
                         state.snakeBody.push(state.currentMousePosition);
                 }
