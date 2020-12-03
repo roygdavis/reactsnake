@@ -1,4 +1,5 @@
 import { AppState, Direction, Entity, SetStateHandler } from "./App";
+import { initState } from "./code/initState";
 import { moveObjectEntities } from './code/moveObjectEntities';
 
 export const getEntities = (): Entity[] => {
@@ -6,9 +7,27 @@ export const getEntities = (): Entity[] => {
         {
             name: "SNAKE",
             updateMethod: (state: AppState, setState: SetStateHandler) => {
-                const head = state.snakeHeadPosition;
-                const newHead = { x: head.x, y: head.y, direction: head.direction, speed: head.speed, ticksAge: head.ticksAge };
-                if (state.gameTicks % newHead.speed === 0) {
+                if (state.gameTicks % state.snakeHeadPosition.speed === 0) {
+                    const head = state.snakeHeadPosition;
+                    const newHead = { x: head.x, y: head.y, direction: head.direction, speed: head.speed, ticksAge: head.ticksAge };
+
+                    switch (state.lastKeyCode) {
+                        case "ArrowUp":
+                            newHead.direction = Direction.Up;
+                            break;
+                        case "ArrowLeft":
+                            newHead.direction = Direction.Left;
+                            break;
+                        case "ArrowRight":
+                            newHead.direction = Direction.Right;
+                            break;
+                        case "ArrowDown":
+                            newHead.direction = Direction.Down;
+                            break;
+                        default:
+                            break;
+                    }
+
                     switch (head.direction) {
                         case Direction.Down:
                             newHead.y += 10;
