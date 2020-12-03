@@ -6,20 +6,20 @@ export const getEntities = (): Entity[] => {
         {
             name: "SNAKE",
             updateMethod: (state: AppState, setState: SetStateHandler) => {
-                if (state.gameTicks % state.snakeHeadPosition.speed === 0) {
-                    const head = state.snakeHeadPosition;
+                if (state.gameTicks % state.shipHeadPosition.speed === 0) {
+                    const head = state.shipHeadPosition;
                     const newHead = JSON.parse(JSON.stringify(head)) as ObjectEntity; //{ x: head.x, y: head.y, direction: head.direction, speed: head.speed, ticksAge: head.ticksAge };
 
                     switch (state.lastKeyCode) {
                         case "ArrowUp":
                             newHead.direction = Direction.Up;
                             break;
-                        case "ArrowLeft":
-                            newHead.direction = Direction.Left;
-                            break;
-                        case "ArrowRight":
-                            newHead.direction = Direction.Right;
-                            break;
+                        // case "ArrowLeft":
+                        //     newHead.direction = Direction.Left;
+                        //     break;
+                        // case "ArrowRight":
+                        //     newHead.direction = Direction.Right;
+                        //     break;
                         case "ArrowDown":
                             newHead.direction = Direction.Down;
                             break;
@@ -34,43 +34,42 @@ export const getEntities = (): Entity[] => {
                         case Direction.Up:
                             newHead.y -= 10;
                             break;
-                        case Direction.Left:
-                            newHead.x -= 10;
-                            break;
-                        case Direction.Right:
-                            newHead.x += 10;
-                            break;
+                        // case Direction.Left:
+                        //     head.x -= 10;
+                        //     break;
+                        // case Direction.Right:
+                        //     head.x += 10;
+                        //     break;
                         default:
                             break;
                     }
                     // portal
-                    if (newHead.x > window.innerWidth) newHead.x = 20;
-                    if (newHead.x < 20) newHead.x = window.innerWidth - 10;
-                    if (newHead.y > window.innerHeight) newHead.y = 20;
-                    if (newHead.y < 20) newHead.y = window.innerHeight - 10;
-                    //if (newHead.x < 10 || newHead.x > window.innerWidth || newHead.y < 10 || newHead.y > window.innerHeight) state.collisionDetected = true;
-
+                    // if (newHead.x > window.innerWidth) newHead.x = 20;
+                    //if (newHead.x < 20) newHead.x = window.innerWidth - 10;
+                    if (newHead.y > window.innerHeight) newHead.y = window.innerHeight - 20;
+                    if (newHead.y < 20) newHead.y = 20;
+                    
                     // body into itself detection
-                    if (state.snakeBody.some(s => (newHead.x - 10 < s.x && newHead.x + 10 > s.x) && (newHead.y - 10 < s.y && newHead.y + 10 > s.y))) {
-                        state.collisionDetected = true;
-                    }
+                    // if (state.snakeBody.some(s => (newHead.x - 10 < s.x && newHead.x + 10 > s.x) && (newHead.y - 10 < s.y && newHead.y + 10 > s.y))) {
+                    //     state.collisionDetected = true;
+                    // }
 
 
-                    // push head to array
-                    if (state.snakeBody.length === state.snakeLength) {
-                        const body = state.snakeBody.slice(1);
+                    //push head to array
+                    if (state.shipBody.length === state.shipLength) {
+                        const body = state.shipBody.slice(1);
                         body.push(newHead);
-                        state.snakeBody = body;
+                        state.shipBody = body;
                     } else {
-                        state.snakeBody.push(newHead);
+                        state.shipBody.push(newHead);
                     }
-                    state.snakeHeadPosition = newHead;
+                    state.shipHeadPosition = newHead;
                 }
                 return state;
             },
             renderMethod: (state: AppState, context: CanvasRenderingContext2D) => {
                 if (context) {
-                    state.snakeBody.forEach((x, i) => {
+                    state.shipBody.forEach((x, i) => {
                         context.beginPath();
                         if (i > 0) {
                             //context.arc(state.snakeBody[i].x, state.snakeBody[i].y, 10, 0, 2 * Math.PI);
@@ -84,31 +83,31 @@ export const getEntities = (): Entity[] => {
             }
         },
         {
-            name: "BIRDS/ENEMIES",
+            name: "SHIPS/ENEMIES",
             updateMethod: (state: AppState, setState: SetStateHandler) => {
-                state.timeSinceLastBird--;
+                state.timeSinceLastEnemyShip--;
 
+                const { enemyShips } = state; //.birds.filter(x => x.y < window.innerHeight);
                 // get rid of mice which have fallen out of the bottom
-                const { birds } = state; //.birds.filter(x => x.y < window.innerHeight);
 
                 // make birds move 
-                moveObjectEntities(birds, state.gameTicks, true, 750);
+                moveObjectEntities(enemyShips, state.gameTicks, false);
 
                 // increase score
-                state.score = state.score + (state.birds.filter(x => x.y > window.innerHeight).length * 100);
+                state.score = state.score + (state.enemyShips.filter(x => x.y > window.innerHeight).length * 100);
 
                 // create a new bird
-                if (state.timeSinceLastBird < 0) {
-                    const rx = Math.round(Math.random() * window.innerWidth);
+                if (state.timeSinceLastEnemyShip < 0) {
+                    const rx = window.innerWidth;//Math.round(Math.random() * window.innerWidth);
                     const ry = Math.round(Math.random() * window.innerHeight);
-                    const dx = Math.round(Math.random() * 3);
-                    birds.push({ x: rx, y: ry, direction: dx as Direction, speed: state.birdSpeed, ticksAge: 0 });
-                    state.timeSinceLastBird = state.newBirdsInterval;
+                    const dx = Direction.Left;// Math.round(Math.random() * 3);
+                    enemyShips.push({ x: rx, y: ry, direction: dx as Direction, speed: state.enemyShipSpeed, ticksAge: 0 });
+                    state.timeSinceLastEnemyShip = state.newEnemyShipsInterval;
                 }
 
                 // Collission detection
-                birds.forEach(r => {
-                    if (state.snakeBody.some(s => (r.x - 10 < s.x && r.x + 10 > s.x) && (r.y - 10 < s.y && r.y + 10 > s.y))) {
+                enemyShips.forEach(r => {
+                    if (state.shipBody.some(s => (r.x - 10 < s.x && r.x + 10 > s.x) && (r.y - 10 < s.y && r.y + 10 > s.y))) {
                         state.collisionDetected = true;
                     }
                 });
@@ -116,7 +115,7 @@ export const getEntities = (): Entity[] => {
                 return state;
             },
             renderMethod: (state: AppState, context: CanvasRenderingContext2D) => {
-                state.birds.forEach(x => {
+                state.enemyShips.forEach(x => {
                     context.beginPath();
                     context.arc(x.x, x.y, 10, 0, 2 * Math.PI);
                     context.fillStyle = "red";
@@ -125,44 +124,44 @@ export const getEntities = (): Entity[] => {
                 });
             }
         },
-        {
-            name: "MICE/FOOD",
-            updateMethod: (state: AppState, setState: SetStateHandler): AppState => {
-                // APPLES
-                //const newApples = [];
-                state.timeSinceLastMice--;
-                if (state.timeSinceLastMice < 0) {
-                    const ax = Math.round(Math.random() * window.innerWidth);
-                    const ay = Math.round(Math.random() * window.innerHeight);
-                    const dir = Math.round(Math.random() * 3);
-                    state.mice.push({ x: ax, y: ay, direction: dir as Direction, speed: 20, ticksAge: 0 });
-                    state.timeSinceLastMice = state.newMiceInterval;
-                }
-                if (state.snakeHeadPosition) {
-                    const eatenApples = state.mice.filter(s => (state.snakeHeadPosition!.x - 10 < s.x && state.snakeHeadPosition!.x + 10 > s.x) && (state.snakeHeadPosition!.y - 10 < s.y && state.snakeHeadPosition!.y + 10 > s.y));
-                    if (eatenApples.length > 0) {
-                        state.score += 1000;
-                        state.snakeLength = state.snakeLength + 10;
-                        const newApples = state.mice.filter(x => !eatenApples.some(y => x.x === y.x && x.y === y.y));
-                        state.mice = newApples;
-                    }
-                }
+        // {
+        //     name: "MICE/FOOD",
+        //     updateMethod: (state: AppState, setState: SetStateHandler): AppState => {
+        //         // APPLES
+        //         //const newApples = [];
+        //         state.timeSinceLastMice--;
+        //         if (state.timeSinceLastMice < 0) {
+        //             const ax = Math.round(Math.random() * window.innerWidth);
+        //             const ay = Math.round(Math.random() * window.innerHeight);
+        //             const dir = Math.round(Math.random() * 3);
+        //             state.mice.push({ x: ax, y: ay, direction: dir as Direction, speed: 20, ticksAge: 0 });
+        //             state.timeSinceLastMice = state.newMiceInterval;
+        //         }
+        //         if (state.shipHeadPosition) {
+        //             const eatenApples = state.mice.filter(s => (state.shipHeadPosition!.x - 10 < s.x && state.shipHeadPosition!.x + 10 > s.x) && (state.shipHeadPosition!.y - 10 < s.y && state.shipHeadPosition!.y + 10 > s.y));
+        //             if (eatenApples.length > 0) {
+        //                 state.score += 1000;
+        //                 state.shipLength = state.shipLength + 10;
+        //                 const newApples = state.mice.filter(x => !eatenApples.some(y => x.x === y.x && x.y === y.y));
+        //                 state.mice = newApples;
+        //             }
+        //         }
 
-                // make mice move
-                moveObjectEntities(state.mice, state.gameTicks, true, 900);
+        //         // make mice move
+        //         moveObjectEntities(state.mice, state.gameTicks, true, 900);
 
-                return state;
-            },
-            renderMethod: (state: AppState, context: CanvasRenderingContext2D) => {
-                state.mice.forEach(x => {
-                    context.beginPath();
-                    context.arc(x.x, x.y, 10, 0, 2 * Math.PI);
-                    context.fillStyle = "yellow";
-                    context.fill();
-                    context.closePath();
-                });
-            }
-        },
+        //         return state;
+        //     },
+        //     renderMethod: (state: AppState, context: CanvasRenderingContext2D) => {
+        //         state.mice.forEach(x => {
+        //             context.beginPath();
+        //             context.arc(x.x, x.y, 10, 0, 2 * Math.PI);
+        //             context.fillStyle = "yellow";
+        //             context.fill();
+        //             context.closePath();
+        //         });
+        //     }
+        // },
         {
             name: "SCORE",
             updateMethod: (state: AppState, setState: SetStateHandler): AppState => {
@@ -198,48 +197,48 @@ export const getEntities = (): Entity[] => {
             updateMethod: (state: AppState): AppState => {
                 state.gameTicks++;
                 if (state.gameTicks % 250 === 1) {
-                    state.newBirdsInterval = state.newBirdsInterval - state.difficultyLevel;
-                    state.newMiceInterval = state.newMiceInterval - state.difficultyLevel;
-                    state.birdSpeed++;
+                    state.newEnemyShipsInterval = state.newEnemyShipsInterval - state.difficultyLevel;
+                    //state.newMiceInterval = state.newMiceInterval - state.difficultyLevel;
+                    state.enemyShipSpeed++;
                 }
                 return state;
             },
             renderMethod: (state: AppState, context: CanvasRenderingContext2D) => { }
         },
         {
-            name: "VENOM",
+            name: "LASERS",
             updateMethod: (state: AppState): AppState => {
-                const { lastKeyCode, venom, collisionDetected, snakeHeadPosition } = state;
+                const { lastKeyCode, shipLaser, collisionDetected, shipHeadPosition } = state;
                 if (!collisionDetected && lastKeyCode === "Space") {
                     state.lastKeyCode = "";
                     // create venom
-                    venom.push({
-                        x: snakeHeadPosition.x,
-                        y: snakeHeadPosition.y,
-                        direction: snakeHeadPosition.direction,
+                    shipLaser.push({
+                        x: shipHeadPosition.x,
+                        y: shipHeadPosition.y,
+                        direction: Direction.Right,
                         speed: 1,
                         ticksAge: 0
                     });
                 }
                 // move venom 
-                moveObjectEntities(venom, state.gameTicks, false);
-                const newVenom = venom.filter(v => !(v.x > window.innerWidth - 20 || v.x < 20 || v.y > window.innerHeight - 20 || v.y < 20));
+                moveObjectEntities(shipLaser, state.gameTicks, false);
+                const newLasers = shipLaser.filter(v => !(v.x > window.innerWidth - 20));
 
                 // collission detection
-                const newBirds = [] as ObjectEntity[];
-                state.birds.forEach(r => {
-                    if (!newVenom.some(s => (r.x - 10 < s.x && r.x + 10 > s.x) && (r.y - 10 < s.y && r.y + 10 > s.y))) {
-                        newBirds.push(r);
+                const newEnemyShips = [] as ObjectEntity[];
+                state.enemyShips.forEach(r => {
+                    if (!newLasers.some(s => (r.x - 10 < s.x && r.x + 10 > s.x) && (r.y - 10 < s.y && r.y + 10 > s.y))) {
+                        newEnemyShips.push(r);
                     }
                 });
-                if (newBirds.length !== state.birds.length) {
-                    state.birds = newBirds;
+                if (newEnemyShips.length !== state.enemyShips.length) {
+                    state.enemyShips = newEnemyShips;
                 }
-                state.venom = newVenom;
+                state.shipLaser = newLasers;
                 return state;
             },
             renderMethod: (state: AppState, context: CanvasRenderingContext2D) => {
-                state.venom.forEach(x => {
+                state.shipLaser.forEach(x => {
                     const width = (x.direction === Direction.Down || x.direction === Direction.Up) ? 3 : 10;
                     const height = (x.direction === Direction.Left || x.direction === Direction.Right) ? 3 : 10;
                     context.beginPath();

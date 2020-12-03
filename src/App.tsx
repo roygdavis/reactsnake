@@ -30,17 +30,17 @@ export enum Direction {
 }
 
 export interface AppState {
-  snakeBody: ObjectEntity[];
-  snakeLength: number;
-  birds: ObjectEntity[];
-  newBirdsInterval: number;
-  timeSinceLastBird: number;
-  birdSpeed: number;
+  shipBody: ObjectEntity[];
+  shipLength: number;
+  enemyShips: ObjectEntity[];
+  newEnemyShipsInterval: number;
+  timeSinceLastEnemyShip: number;
+  enemyShipSpeed: number;
   collisionDetected: boolean;
-  mice: ObjectEntity[];
-  timeSinceLastMice: number;
-  newMiceInterval: number;
-  snakeHeadPosition: ObjectEntity;
+  // mice: ObjectEntity[];
+  // timeSinceLastMice: number;
+  // newMiceInterval: number;
+  shipHeadPosition: ObjectEntity;
   score: number;
   highScore: number;
   entities: Entity[];
@@ -48,22 +48,22 @@ export interface AppState {
   gameTicks: number;
   difficultyLevel: number;
   lastKeyCode: string;
-  venom: ObjectEntity[];
+  shipLaser: ObjectEntity[];
 }
 
 const initState = () => {
   return {
-    snakeBody: [],
-    snakeLength: 5,
-    birds: [],
-    newBirdsInterval: 50,
-    timeSinceLastBird: 0,
-    birdSpeed: 20,
+    shipBody: [],
+    shipLength: 5,
+    enemyShips: [],
+    newEnemyShipsInterval: 50,
+    timeSinceLastEnemyShip: 0,
+    enemyShipSpeed: 20,
     collisionDetected: false,
-    mice: [],
-    timeSinceLastMice: 0,
-    newMiceInterval: 500,
-    snakeHeadPosition: { x: 600, y: 500, direction: Direction.Up, speed: 5, ticksAge: 0 },
+    // mice: [],
+    // timeSinceLastMice: 0,
+    // newMiceInterval: 500,
+    shipHeadPosition: { x: 200, y: 500, direction: Direction.Right, speed: 5, ticksAge: 0 },
     score: 0,
     highScore: 0,
     entities: [],
@@ -71,7 +71,7 @@ const initState = () => {
     gameTicks: 0,
     difficultyLevel: 5,
     lastKeyCode: "",
-    venom: []
+    shipLaser: []
   } as AppState;
 }
 
