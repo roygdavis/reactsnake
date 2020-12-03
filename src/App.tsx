@@ -63,7 +63,7 @@ const initState = () => {
     mice: [],
     timeSinceLastMice: 0,
     newMiceInterval: 500,
-    snakeHeadPosition: { x: 600, y: 500, direction: Direction.Up, speed: 10, ticksAge: 0 },
+    snakeHeadPosition: { x: 600, y: 500, direction: Direction.Up, speed: 5, ticksAge: 0 },
     score: 0,
     highScore: 0,
     entities: [],
