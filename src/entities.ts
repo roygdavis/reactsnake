@@ -1,4 +1,5 @@
 import { AppState, Direction, Entity, SetStateHandler } from "./App";
+import { moveObjectEntities } from './code/moveObjectEntities';
 
 export const getEntities = (): Entity[] => {
     return [
@@ -24,6 +25,10 @@ export const getEntities = (): Entity[] => {
                         default:
                             break;
                     }
+                    // body into itself detection
+                    if (state.snakeBody.some(s => (newHead.x - 10 < s.x && newHead.x + 10 > s.x) && (newHead.y - 10 < s.y && newHead.y + 10 > s.y))) {
+                        state.collisionDetected = true;
+                    }
                     if (state.snakeBody.length === state.snakeLength) {
                         const body = state.snakeBody.slice(1);
                         body.push(newHead);
@@ -36,12 +41,7 @@ export const getEntities = (): Entity[] => {
                     // out of bounds
                     if (newHead.x < 10 || newHead.x > window.innerWidth || newHead.y < 10 || newHead.y > window.innerHeight) state.collisionDetected = true;
 
-                    // body into itself detection
-                    state.snakeBody.forEach((r, i) => {
-                        if (state.gameTicks > 100 && state.snakeBody.some(s => (r.x - 10 < s.x && r.x + 10 > s.x) && (r.y - 10 < s.y && r.y + 10 > s.y))) {
-                            state.collisionDetected = true;
-                        }
-                    });
+
                 }
                 return state;
             },
@@ -69,54 +69,7 @@ export const getEntities = (): Entity[] => {
                 const { birds } = state; //.birds.filter(x => x.y < window.innerHeight);
 
                 // make birds move 
-                state.birds.forEach(m => {
-                    if (state.gameTicks % m.speed === 0) {
-                        const shouldChangeDirection = Math.random() * 1000;
-                        if (shouldChangeDirection > 950) {
-                            // change direction
-                            const dir = Math.round(Math.random() * 3);
-                            m.direction = dir as Direction;
-                        }
-
-                        switch (m.direction) {
-                            case Direction.Down:
-                                m.y += 10;
-                                break;
-                            case Direction.Up:
-                                m.y -= 10;
-                                break;
-                            case Direction.Left:
-                                m.x -= 10;
-                                break;
-                            case Direction.Right:
-                                m.x += 10;
-                                break;
-                            default:
-                                break;
-                        }
-
-                        // now change direction if mouse hits wall
-                        if (m.x > window.innerWidth) {
-                            m.x -= 10;
-                            m.direction = Direction.Left;
-                        }
-                        if (m.x < 10) {
-                            m.x = 10;
-                            m.direction = Direction.Right;
-                        }
-                        if (m.y > window.innerHeight) {
-                            m.y -= 10;
-                            m.direction = Direction.Up;
-                        }
-                        if (m.y < 10) {
-                            m.y -= 10;
-                            m.direction = Direction.Down;
-                        }
-                    }
-
-                });
-
-
+                moveObjectEntities(birds, state.gameTicks, 750);
 
                 // increase score
                 state.score = state.score + (state.birds.filter(x => x.y > window.innerHeight).length * 100);
@@ -173,52 +126,8 @@ export const getEntities = (): Entity[] => {
                 }
 
                 // make mice move
-                state.mice.forEach(m => {
-                    if (state.gameTicks % m.speed === 0) {
-                        const shouldChangeDirection = Math.random() * 1000;
-                        if (shouldChangeDirection > 950) {
-                            // change direction
-                            const dir = Math.round(Math.random() * 3);
-                            m.direction = dir as Direction;
-                        }
+                moveObjectEntities(state.mice, state.gameTicks, 900);
 
-                        switch (m.direction) {
-                            case Direction.Down:
-                                m.y += 10;
-                                break;
-                            case Direction.Up:
-                                m.y -= 10;
-                                break;
-                            case Direction.Left:
-                                m.x -= 10;
-                                break;
-                            case Direction.Right:
-                                m.x += 10;
-                                break;
-                            default:
-                                break;
-                        }
-
-                        // now change direction if mouse hits wall
-                        if (m.x > window.innerWidth) {
-                            m.x -= 10;
-                            m.direction = Direction.Left;
-                        }
-                        if (m.x < 10) {
-                            m.x = 10;
-                            m.direction = Direction.Right;
-                        }
-                        if (m.y > window.innerHeight) {
-                            m.y -= 10;
-                            m.direction = Direction.Up;
-                        }
-                        if (m.y < 10) {
-                            m.y -= 10;
-                            m.direction = Direction.Down;
-                        }
-                    }
-
-                });
                 return state;
             },
             renderMethod: (state: AppState, context: CanvasRenderingContext2D) => {
@@ -257,7 +166,7 @@ export const getEntities = (): Entity[] => {
                     context.font = "30px Comic Sans MS";
                     context.fillStyle = "red";
                     context.textAlign = "center";
-                    context.fillText(`CLICK TO PLAY AGAIN`, 850, 500);
+                    context.fillText(`PRESS [SPACE] TO PLAY AGAIN`, 850, 500);
                 }
             }
         },

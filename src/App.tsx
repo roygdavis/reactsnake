@@ -123,6 +123,9 @@ class App extends React.Component<AppProps, AppState> {
       case "ArrowDown":
         snakeHeadPosition.direction = Direction.Down;
         break;
+      case "Space":
+        if (this.state.collisionDetected) this.resetState();
+        break;
       default:
         break;
     }
@@ -132,9 +135,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   render() {
-    return (<div className="App" onClick={() => {
-      if (this.state.collisionDetected) this.resetState();
-    }}>
+    return (<div className="App">
       <Canvas state={this.state} setState={this.setStateWrapper} render={canvasRender}></Canvas>
     </div>);
   }
