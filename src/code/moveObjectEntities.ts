@@ -1,4 +1,4 @@
-import { ObjectEntity, AppState, SetStateHandler, Direction } from '../App';
+import { ObjectEntity, Direction } from '../App';
 
 export const moveObjectEntities = (objs: ObjectEntity[], gameTicks: number, withRandomMovement: boolean, changeDirectionThreshold?: number) => {
     objs.forEach(m => {
