@@ -8,7 +8,7 @@ export const getEntities = (): Entity[] => {
             updateMethod: (state: AppState, setState: SetStateHandler) => {
                 if (state.gameTicks % state.snakeHeadPosition.speed === 0) {
                     const head = state.snakeHeadPosition;
-                    const newHead = { x: head.x, y: head.y, direction: head.direction, speed: head.speed, ticksAge: head.ticksAge };
+                    const newHead = JSON.parse(JSON.stringify(head)) as ObjectEntity; //{ x: head.x, y: head.y, direction: head.direction, speed: head.speed, ticksAge: head.ticksAge };
 
                     switch (state.lastKeyCode) {
                         case "ArrowUp":
@@ -27,7 +27,7 @@ export const getEntities = (): Entity[] => {
                             break;
                     }
 
-                    switch (head.direction) {
+                    switch (newHead.direction) {
                         case Direction.Down:
                             newHead.y += 10;
                             break;
@@ -43,10 +43,20 @@ export const getEntities = (): Entity[] => {
                         default:
                             break;
                     }
+                    // portal
+                    if (newHead.x > window.innerWidth) newHead.x = 20;
+                    if (newHead.x < 20) newHead.x = window.innerWidth - 10;
+                    if (newHead.y > window.innerHeight) newHead.y = 20;
+                    if (newHead.y < 20) newHead.y = window.innerHeight - 10;
+                    //if (newHead.x < 10 || newHead.x > window.innerWidth || newHead.y < 10 || newHead.y > window.innerHeight) state.collisionDetected = true;
+
                     // body into itself detection
                     if (state.snakeBody.some(s => (newHead.x - 10 < s.x && newHead.x + 10 > s.x) && (newHead.y - 10 < s.y && newHead.y + 10 > s.y))) {
                         state.collisionDetected = true;
                     }
+
+
+                    // push head to array
                     if (state.snakeBody.length === state.snakeLength) {
                         const body = state.snakeBody.slice(1);
                         body.push(newHead);
@@ -55,11 +65,6 @@ export const getEntities = (): Entity[] => {
                         state.snakeBody.push(newHead);
                     }
                     state.snakeHeadPosition = newHead;
-
-                    // out of bounds
-                    if (newHead.x < 10 || newHead.x > window.innerWidth || newHead.y < 10 || newHead.y > window.innerHeight) state.collisionDetected = true;
-
-
                 }
                 return state;
             },
@@ -212,7 +217,7 @@ export const getEntities = (): Entity[] => {
                         x: snakeHeadPosition.x,
                         y: snakeHeadPosition.y,
                         direction: snakeHeadPosition.direction,
-                        speed: snakeHeadPosition.speed / 2,
+                        speed: 1,
                         ticksAge: 0
                     });
                 }
