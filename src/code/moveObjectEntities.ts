@@ -1,13 +1,15 @@
 import { ObjectEntity, AppState, SetStateHandler, Direction } from '../App';
 
-export const moveObjectEntities = (objs: ObjectEntity[], gameTicks: number, changeDirectionThreshold: number) => {
+export const moveObjectEntities = (objs: ObjectEntity[], gameTicks: number, withRandomMovement: boolean, changeDirectionThreshold?: number) => {
     objs.forEach(m => {
         if (gameTicks % m.speed === 0) {
-            const shouldChangeDirection = Math.random() * 1000;
-            if (shouldChangeDirection > changeDirectionThreshold) {
-                // change direction
-                const dir = Math.round(Math.random() * 3);
-                m.direction = dir as Direction;
+            if (withRandomMovement && changeDirectionThreshold) {
+                const shouldChangeDirection = Math.random() * 1000;
+                if (shouldChangeDirection > changeDirectionThreshold) {
+                    // change direction
+                    const dir = Math.round(Math.random() * 3);
+                    m.direction = dir as Direction;
+                }
             }
 
             switch (m.direction) {

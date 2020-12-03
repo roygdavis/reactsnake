@@ -1,5 +1,4 @@
-import { AppState, Direction, Entity, SetStateHandler } from "./App";
-import { initState } from "./code/initState";
+import { AppState, Direction, Entity, ObjectEntity, SetStateHandler } from "./App";
 import { moveObjectEntities } from './code/moveObjectEntities';
 
 export const getEntities = (): Entity[] => {
@@ -88,7 +87,7 @@ export const getEntities = (): Entity[] => {
                 const { birds } = state; //.birds.filter(x => x.y < window.innerHeight);
 
                 // make birds move 
-                moveObjectEntities(birds, state.gameTicks, 750);
+                moveObjectEntities(birds, state.gameTicks, true, 750);
 
                 // increase score
                 state.score = state.score + (state.birds.filter(x => x.y > window.innerHeight).length * 100);
@@ -145,7 +144,7 @@ export const getEntities = (): Entity[] => {
                 }
 
                 // make mice move
-                moveObjectEntities(state.mice, state.gameTicks, 900);
+                moveObjectEntities(state.mice, state.gameTicks, true, 900);
 
                 return state;
             },
@@ -201,6 +200,51 @@ export const getEntities = (): Entity[] => {
                 return state;
             },
             renderMethod: (state: AppState, context: CanvasRenderingContext2D) => { }
+        },
+        {
+            name: "VENOM",
+            updateMethod: (state: AppState): AppState => {
+                const { lastKeyCode, venom, collisionDetected, snakeHeadPosition } = state;
+                if (!collisionDetected && lastKeyCode === "Space") {
+                    state.lastKeyCode = "";
+                    // create venom
+                    venom.push({
+                        x: snakeHeadPosition.x,
+                        y: snakeHeadPosition.y,
+                        direction: snakeHeadPosition.direction,
+                        speed: snakeHeadPosition.speed / 2,
+                        ticksAge: 0
+                    });
+                }
+                // move venom 
+                moveObjectEntities(venom, state.gameTicks, false);
+                const newVenom = venom.filter(v => !(v.x > window.innerWidth - 20 || v.x < 20 || v.y > window.innerHeight - 20 || v.y < 20));
+
+                // collission detection
+                const newBirds = [] as ObjectEntity[];
+                state.birds.forEach(r => {
+                    if (!newVenom.some(s => (r.x - 10 < s.x && r.x + 10 > s.x) && (r.y - 10 < s.y && r.y + 10 > s.y))) {
+                        newBirds.push(r);
+                    }
+                });
+                if (newBirds.length !== state.birds.length) {
+                    state.birds = newBirds;
+                }
+                state.venom = newVenom;
+                return state;
+            },
+            renderMethod: (state: AppState, context: CanvasRenderingContext2D) => {
+                state.venom.forEach(x => {
+                    const width = (x.direction === Direction.Down || x.direction === Direction.Up) ? 3 : 10;
+                    const height = (x.direction === Direction.Left || x.direction === Direction.Right) ? 3 : 10;
+                    context.beginPath();
+                    context.fillRect(x.x, x.y, width, height);
+                    context.fillStyle = "blue";
+                    context.fill();
+                    context.closePath();
+                });
+            }
+
         }
     ]
 }

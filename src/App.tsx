@@ -47,6 +47,8 @@ export interface AppState {
   context: CanvasRenderingContext2D | null;
   gameTicks: number;
   difficultyLevel: number;
+  lastKeyCode: string;
+  venom: ObjectEntity[];
 }
 
 const initState = () => {
@@ -67,7 +69,9 @@ const initState = () => {
     entities: [],
     context: null,
     gameTicks: 0,
-    difficultyLevel: 5
+    difficultyLevel: 5,
+    lastKeyCode: "",
+    venom: []
   } as AppState;
 }
 
@@ -109,29 +113,8 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   handleKeyDown = (e: KeyboardEvent) => {
-    const { snakeHeadPosition } = this.state;
-    switch (e.code) {
-      case "ArrowUp":
-        snakeHeadPosition.direction = Direction.Up;
-        break;
-      case "ArrowLeft":
-        snakeHeadPosition.direction = Direction.Left;
-        break;
-      case "ArrowRight":
-        snakeHeadPosition.direction = Direction.Right;
-        break;
-      case "ArrowDown":
-        snakeHeadPosition.direction = Direction.Down;
-        break;
-      case "Space":
-        if (this.state.collisionDetected) this.resetState();
-        break;
-      default:
-        break;
-    }
-
-    //onMouseMove = {(e) => mouseMoveHandler(e.clientX, e.clientY, state, setState, canvasRef)
-    this.setState({ snakeHeadPosition });
+    if (e.code === "Space" && this.state.collisionDetected) this.resetState();
+    else this.setState({ lastKeyCode: e.code });
   }
 
   render() {
