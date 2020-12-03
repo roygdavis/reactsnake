@@ -7,9 +7,12 @@ export interface AppProps {
 
 }
 
-export type BodyCoOrds = {
+export type ObjectEntity = {
   x: number;
   y: number;
+  direction: Direction;
+  speed: number;
+  ticksAge: number;
 }
 
 export type Entity = {
@@ -18,18 +21,26 @@ export type Entity = {
   renderMethod: (state: AppState, context: CanvasRenderingContext2D) => void;
 }
 
+export enum Direction {
+  Left,
+  Right,
+  Down,
+  Up,
+  Stationary
+}
+
 export interface AppState {
-  snakeBody: BodyCoOrds[];
+  snakeBody: ObjectEntity[];
   snakeLength: number;
-  rain: BodyCoOrds[];
-  newRainInterval: number;
-  timeSinceLastRain: number;
-  rainSpeed: number;
+  birds: ObjectEntity[];
+  newBirdsInterval: number;
+  timeSinceLastBird: number;
+  birdSpeed: number;
   collisionDetected: boolean;
-  apples: BodyCoOrds[];
-  timeSinceLastApple: number;
-  newAppleInterval: number;
-  currentMousePosition: BodyCoOrds | null;
+  mice: ObjectEntity[];
+  timeSinceLastMice: number;
+  newMiceInterval: number;
+  snakeHeadPosition: ObjectEntity;
   score: number;
   highScore: number;
   entities: Entity[];
@@ -41,16 +52,16 @@ export interface AppState {
 const initState = () => {
   return {
     snakeBody: [],
-    snakeLength: 100,
-    rain: [],
-    newRainInterval: 50,
-    timeSinceLastRain: 0,
-    rainSpeed: 2,
+    snakeLength: 5,
+    birds: [],
+    newBirdsInterval: 50,
+    timeSinceLastBird: 0,
+    birdSpeed: 20,
     collisionDetected: false,
-    apples: [],
-    timeSinceLastApple: 0,
-    newAppleInterval: 500,
-    currentMousePosition: null,
+    mice: [],
+    timeSinceLastMice: 0,
+    newMiceInterval: 500,
+    snakeHeadPosition: { x: 600, y: 500, direction: Direction.Up, speed: 10, ticksAge: 0 },
     score: 0,
     highScore: 0,
     entities: [],
@@ -92,14 +103,39 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   componentDidMount() {
+    window.onkeydown = this.handleKeyDown;
     window.requestAnimationFrame(this.update);
     this.setState({ entities: getEntities() });
   }
 
+  handleKeyDown = (e: KeyboardEvent) => {
+    const { snakeHeadPosition } = this.state;
+    switch (e.code) {
+      case "ArrowUp":
+        snakeHeadPosition.direction = Direction.Up;
+        break;
+      case "ArrowLeft":
+        snakeHeadPosition.direction = Direction.Left;
+        break;
+      case "ArrowRight":
+        snakeHeadPosition.direction = Direction.Right;
+        break;
+      case "ArrowDown":
+        snakeHeadPosition.direction = Direction.Down;
+        break;
+      case "Space":
+        if (this.state.collisionDetected) this.resetState();
+        break;
+      default:
+        break;
+    }
+
+    //onMouseMove = {(e) => mouseMoveHandler(e.clientX, e.clientY, state, setState, canvasRef)
+    this.setState({ snakeHeadPosition });
+  }
+
   render() {
-    return (<div className="App" onClick={() => {
-      if (this.state.collisionDetected) this.resetState();
-    }}>
+    return (<div className="App">
       <Canvas state={this.state} setState={this.setStateWrapper} render={canvasRender}></Canvas>
     </div>);
   }
